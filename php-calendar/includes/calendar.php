@@ -50,7 +50,7 @@ function is_admin()
 	return !empty($_SESSION["phpc_admin"]);
 }
 
-function login_user($username, $password)
+function login_user($username, $password, $md5=false)
 {
         global $phpcdb;
 
@@ -61,9 +61,17 @@ function login_user($username, $password)
 	// session_regenerate_id();
 
 	$user = $phpcdb->get_user_by_name($username);
-	if(!$user || $user->password != md5($password))
-		return false;
-
+	if (!$md5)
+	{
+		if(!$user || $user->password != md5($password))
+			return false;
+	}
+	else
+	{
+	echo 'check';
+	if (!$user || $user->password != $password ) return false;
+	}
+	
 	phpc_do_login($user);
 
 	return true;
