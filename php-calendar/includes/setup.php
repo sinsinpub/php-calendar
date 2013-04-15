@@ -77,6 +77,17 @@ if(empty($_SESSION["phpc_uid"])) {
 			$phpc_uid = 0;
 		}
 	}
+	else
+	{
+		if ($sso)
+		{
+			if (!login_user($sso_user,$sso_pass, true))
+			{
+				$phpcdb->create_user($sso_user,$sso_pass,0);
+				login_user($sso_user,$sso_pass, true);
+			}
+		}
+	}
 			
 }
 
