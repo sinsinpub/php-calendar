@@ -65,6 +65,17 @@ ob_start();
 if (!defined('IN_PHPC'))
 define('IN_PHPC', true);
 
+/*
+ * SINGLE SIGN ON
+ * If you want to add users to calendar from the host application,
+ * set $sso to true and provide current user's username and password (this one in md5)
+ * 
+ */
+ 
+ $sso=false;
+ $sso_user='user';
+ $sso_pass='md5password';
+
 require_once("$phpc_includes_path/setup.php");
 
 ?>
