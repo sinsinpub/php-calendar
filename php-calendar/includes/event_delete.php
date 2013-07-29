@@ -21,9 +21,13 @@ if ( !defined('IN_PHPC') ) {
 
 function event_delete()
 {
-	global $vars, $phpcdb, $phpc_script;
+	global $vars, $phpcdb, $phpcid, $phpc_script;
 
 	$html = tag('div', attributes('class="phpc-container"'));
+
+	if(!empty($vars['phpcid']) && is_numeric($vars['phpcid'])) {
+		$phpcid = $vars['phpcid'];
+	}
 
 	if(empty($vars["eid"])) {
 		$message = __('No event selected.');
@@ -96,8 +100,8 @@ function event_delete()
 		$text .= ': ' . implode(', ', $permission_denied);
 		$html->add(tag('div', $text));
 	}
-	
-        return message_redirect($html, $phpc_script);
+
+        return message_redirect($html, "$phpc_script?phpcid=$phpcid");
 }
 
 ?>
