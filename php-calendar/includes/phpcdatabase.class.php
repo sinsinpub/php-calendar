@@ -218,12 +218,14 @@ class PhpcDatabase {
 		return $result;
 	}
 
-	function get_groups($cid) {
+	function get_groups($cid = false) {
 		$groups_table = SQL_PREFIX . 'groups';
 
 		$query = "SELECT `gid`, `name`, `cid`\n"
-			."FROM `$groups_table`\n"
-			."WHERE `cid` = $cid";
+			."FROM `$groups_table`\n";
+
+		if($cid !== false)
+			$query .= "WHERE `cid` = $cid";
 
 		$sth = $this->dbh->query($query)
 			or $this->db_error(__('Error in get_groups'), $query);
@@ -667,6 +669,18 @@ class PhpcDatabase {
 					$query);
 	}
 
+	function user_add_group($uid, $gid) {
+		$user_groups_table = SQL_PREFIX . 'user_groups';
+
+		$query = "INSERT INTO `$user_groups_table`\n"
+			."(`gid`, `uid`) VALUES\n"
+			."('$gid', '$uid')";
+
+		$this->dbh->query($query)
+			or $this->db_error(__('Error adding group to user.'),
+					$query);
+	}
+
 	function create_event($cid, $uid, $subject, $description, $readonly,
 			$catid = false)
 	{
@@ -810,8 +824,7 @@ class PhpcDatabase {
 	function modify_group($gid, $name)
 	{
 		$query = "UPDATE " . SQL_PREFIX . "groups\n"
-			."SET\n"
-			."`name`='$name'\n"
+			."SET `name`='$name'\n"
 			."WHERE `gid`='$gid'";
 
 		$sth = $this->dbh->query($query)
