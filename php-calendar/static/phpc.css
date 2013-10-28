@@ -26,7 +26,6 @@ body {
 
 .php-calendar h1 a {
   text-decoration: none;
-  display: block;
 }
 
 .php-calendar h2 {
@@ -241,5 +240,32 @@ div.ui-datepicker, div.ui-timepicker {
 }
 
 .php-calendar.ui-widget {
-font-size: 1em;
+  font-size: 1em;
+}
+
+.phpc-dropdown-list-title {
+  margin-right: 2px;
+}
+
+.phpc-dropdown-list ul {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  z-index: 99;
+}
+
+.phpc-dropdown-list li {
+  text-align: left;
+  font-size: medium;
+  font-weight: normal;
+  padding: 0.1em;
+}
+
+.phpc-dropdown-list {
+  margin-right: 1em;
+}
+
+.phpc-dropdown-list-button {
+  display: inline-block !important;
 }

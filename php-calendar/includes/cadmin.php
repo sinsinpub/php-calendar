@@ -84,6 +84,13 @@ function user_list()
 	$tbody = tag('tbody');
 
 	foreach ($users as $user) {
+		$phpc_user = new PhpcUser($user);
+		$group_list = array();
+		foreach($phpc_user->get_groups() as $group) {
+			if($group['cid'] == $phpcid)
+				$group_list[] = $group['name'];
+		}
+		$groups = implode(', ', $group_list);
 		$tbody->add(tag('tr',
 					tag('th', $user['username'],
 						create_hidden('uid[]',
@@ -92,7 +99,9 @@ function user_list()
 					tag('td', create_checkbox("write{$user['uid']}", "1", !empty($user['write']), __('Write'))),
 					tag('td', create_checkbox("readonly{$user['uid']}", "1", !empty($user['readonly']), __('Read-only'))),
 					tag('td', create_checkbox("modify{$user['uid']}", "1", !empty($user['modify']), __('Modify'))),
-					tag('td', create_checkbox("admin{$user['uid']}", "1", !empty($user['calendar_admin']), __('Admin')))
+					tag('td', create_checkbox("admin{$user['uid']}", "1", !empty($user['calendar_admin']), __('Admin'))),
+					tag('td', $groups),
+					tag('td', create_action_link(__("Edit Groups"), "user_groups", array("uid" => $user["uid"])))
 				   ));
 	}
 
@@ -108,7 +117,7 @@ function user_list()
 				tag('caption', __('User Permissions')),
 				tag('tfoot',
 					tag('tr',
-						tag('td', attributes('colspan="6"'),
+						tag('td', attributes('colspan="8"'),
 							create_submit(__('Submit'))))),
 				tag('thead',
 					tag('tr',
@@ -117,8 +126,10 @@ function user_list()
 						tag('th', __('Write')),
 						tag('th', __('Can Create Read-Only')),
 						tag('th', __('Modify')),
-						tag('th', __('Admin')))),
-				$tbody));
+						tag('th', __('Admin')),
+						tag('th', __('Groups')),
+						tag('th', __('Edit Groups'))
+					   )), $tbody));
 
 	return tag('div', attrs('id="phpc-users"'), $form);
 }

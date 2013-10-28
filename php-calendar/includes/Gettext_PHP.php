@@ -29,7 +29,8 @@
  * @author David Soria Parra <sn_@gmx.net>
  *
  * Changes:
- *   4/25/2013 sproctor - Changed unpack format in parseHeader to unsigned
+ *   04/25/2013 sproctor - Changed unpack format in parseHeader to unsigned
+ *   09/07/2013 sproctor - Added pgettext
  */
 class Gettext_PHP //extends Gettext
 {
@@ -211,7 +212,9 @@ class Gettext_PHP //extends Gettext
         }
 
         if (array_key_exists($msg, $this->translationTable)) {
-            return $this->translationTable[$msg][0];
+            $t = $this->translationTable[$msg][0];
+	    if(!empty($t))
+                return $t;
         }
         return $msg;
     }
@@ -233,8 +236,11 @@ class Gettext_PHP //extends Gettext
             $this->parse();
         }
 
-        if (array_key_exists($msg, $this->translationTable)) {
-            return $this->translationTable["{$context}\04{$msg}"][0];
+	$key = "{$context}\04{$msg}";
+        if (array_key_exists($key, $this->translationTable)) {
+            $t = $this->translationTable[$key][0];
+            if(!empty($t))
+                return $t;
         }
         return $msg;
     }

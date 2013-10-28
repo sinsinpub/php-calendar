@@ -418,6 +418,22 @@ function create_checkbox($name, $value, $checked = false, $label = false)
 		return $input;
 }
 
+// $title - string or html element displayed by default
+// $values - Array of URL => title
+// returns an html structure for a dropdown box that will change the page
+//		to the URL from $values when an element is selected
+function create_dropdown_list($title, $values, $attrs = false) {
+	$list = tag('ul');
+	foreach($values as $key => $value) {
+		$list->add(tag('li', tag('a', attrs("href=\"$key\""), $value)));
+	}
+	return tag('span', attrs('class="phpc-dropdown-list"'),
+			tag('span', attrs('class="phpc-dropdown-list-header"'),
+				tag('span', attrs('class="phpc-dropdown-list-title"'),
+				$title)),
+			$list);
+}
+
 // creates the user menu
 // returns tag data for the menu
 function userMenu()
@@ -601,30 +617,6 @@ function get_date_format_list()
 			__("Day Month Year"));
 }
 
-function get_calendar_list() {
-	global $phpc_script, $phpcdb;
-
-	$calendar_list = tag('div', attributes('class="phpc-bar phpc-callist"'));
-
-	$count = 0;
-	foreach($phpcdb->get_calendars() as $calendar) {
-		if(!$calendar->can_read())
-			continue;
-
-		$title = $calendar->get_title();
-		$cid = $calendar->get_cid();
-		$count++;
-
-		$attrs = attributes("href=\"$phpc_script?phpcid=$cid\"");
-		$calendar_list->add(tag('a', $attrs, $title));
-	}
-
-	if($count <= 1)
-		return '';
-
-	return $calendar_list;
-}
-
 function display_phpc() {
 	global $phpc_messages, $phpc_redirect, $phpc_script, $phpc_prefix;
 
@@ -647,7 +639,7 @@ function display_phpc() {
 			$messages = '';
 		}
 
-		return tag('', get_calendar_list(), $navbar, $messages,
+		return tag('', $navbar, $messages,
 				$content, footer());
 	} catch(PermissionException $e) {
 		$results = tag('');
@@ -742,8 +734,8 @@ function get_header_tags($path)
 	$theme = $phpc_cal->theme;
 	if(empty($theme))
 		$theme = 'smoothness';
-	$jquery_version = "1.9.1";
-	$jqueryui_version = "1.10.2";
+	$jquery_version = "1.10.2";
+	$jqueryui_version = "1.10.3";
 	$jpicker_version = "1.1.6";
 
 	return array(

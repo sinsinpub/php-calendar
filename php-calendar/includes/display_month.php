@@ -26,7 +26,7 @@ if ( !defined('IN_PHPC') ) {
 // Full display for a month
 function display_month()
 {
-	global $month, $year;
+	global $month, $year, $phpc_home_url, $phpcid;
 
 	$heading_html = tag('tr');
 	$heading_html->add(tag('th', __p('Week', 'W')));
@@ -35,7 +35,15 @@ function display_month()
 		$heading_html->add(tag('th', day_name($d)));
 	}
 
-	$month_navbar = month_navbar($month, $year);
+	$months = array();
+	for($i = 1; $i <= 12; $i++) {
+		$m = month_name($i);
+		$months["$phpc_home_url?action=display_month&amp;phpcid=$phpcid&amp;month=$i&amp;year=$year"] = $m;
+	}
+	$years = array();
+	for($i = $year - 5; $i <= $year + 5; $i++) {
+		$years["$phpc_home_url?action=display_month&amp;phpcid=$phpcid&amp;month=$month&amp;year=$i"] = $i;
+	}
 	return tag('',
 			tag("div", attributes('id="phpc-summary-view"'), 
 				tag("div", attributes('id="phpc-summary-head"'),
@@ -44,10 +52,11 @@ function display_month()
 					tag("div", attributes('id="phpc-summary-category"'), ''),
 					tag("div", attributes('id="phpc-summary-time"'), '')),
 				tag("div", attributes('id="phpc-summary-body"'), '')),
-                        $month_navbar,
                         tag('table',
 				attributes('class="phpc-main phpc-calendar"'),
-                                tag('caption', month_name($month)." $year"),
+                                tag('caption',
+					create_dropdown_list(month_name($month), $months),
+					create_dropdown_list($year, $years)),
                                 tag('colgroup',
 					tag('col', attributes('class="phpc-week"')),
 					tag('col', attributes('class="phpc-day"')),
@@ -59,45 +68,7 @@ function display_month()
 					tag('col', attributes('class="phpc-day"'))
 				   ),
                                 tag('thead', $heading_html),
-                                create_month($month, $year)),
-			$month_navbar);
-}
-
-// creates a menu to navigate the month/year
-// returns XHTML data for the menu
-function month_navbar($month, $year) {
-	$nav_tag = tag('div', attributes('class="phpc-bar ui-widget-content"'));
-	$months_tag = tag('div', attributes('class="phpc-bar ui-widget-content"'));
-
-	$prev_month = $month - 1;
-	$prev_year = $year;
-	if($prev_month < 1) {
-		$prev_month += 12;
-		$prev_year--;
-	}
-	menu_item_append_with_date($nav_tag, __('last year'), 'display_month',
-			$year - 1, $month);
-	menu_item_append_with_date($nav_tag, __('last month'), 'display_month',
-			$prev_year, $prev_month);
-
-	$next_month = $month + 1;
-	$next_year = $year;
-	if($next_month > 12) {
-		$next_month -= 12;
-		$next_year++;
-	}
-
-	menu_item_append_with_date($nav_tag, __('next month'), 'display_month',
-			$next_year, $next_month);
-	menu_item_append_with_date($nav_tag, __('next year'), 'display_month',
-			$year + 1, $month);
-
-	for($i = 1; $i <= 12; $i++) {
-		menu_item_append_with_date($months_tag, short_month_name($i),
-				'display_month', $year, $i);
-	}
-
-	return array($nav_tag, $months_tag);
+                                create_month($month, $year)));
 }
 
 // creates a display for a particular month to be embedded in a full view
@@ -250,7 +221,7 @@ function create_day($month, $day, $year, $days_events)
 	if(empty($results))
 		return $html_day;
 
-	$html_events = tag('ul');
+	$html_events = tag('ul', attrs('class="phpc-event-list"'));
 	$html_day->add($html_events);
 
 	// Count the number of events

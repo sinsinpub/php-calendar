@@ -241,7 +241,7 @@ class PhpcDatabase {
 		$groups_table = SQL_PREFIX . 'groups';
 		$user_groups_table = SQL_PREFIX . 'user_groups';
 
-		$query = "SELECT `gid`, `name`\n"
+		$query = "SELECT `gid`, `cid`, `name`\n"
 			."FROM `$groups_table`\n"
 			."INNER JOIN `$user_groups_table` USING (`gid`)\n"
 			."WHERE `uid` = $uid";
@@ -489,8 +489,10 @@ class PhpcDatabase {
 		return $perms[$cid][$uid];
 	}
 
-	function get_calendars()
-	{
+	function get_calendars() {
+		if(!empty($this->calendars))
+			return $this->calendars;
+
 		$query = "SELECT *\n"
 			."FROM `" . SQL_PREFIX .  "calendars`\n";
 
@@ -504,21 +506,16 @@ class PhpcDatabase {
 				$this->calendars[$cid] = new PhpcCalendar
 					($result);
 		}
+
 		return $this->calendars;
 	}
 
 	function get_calendar($cid)
 	{
+		// Make sure we've cached the calendars
+		$this->get_calendars();
 		if(empty($this->calendars[$cid])) {
-			$query = "SELECT *\n"
-				."FROM `" . SQL_PREFIX .  "calendars`\n"
-				."WHERE `cid`='$cid'";
-
-			$sth = $this->dbh->query($query)
-				or $this->db_error(__('Could not get calendar.'),
-					$query);
-			$this->calendars[$cid] = new PhpcCalendar
-				($sth->fetch_assoc());
+			return NULL;
 		}
 
 		return $this->calendars[$cid];
@@ -542,9 +539,7 @@ class PhpcDatabase {
 	{
 		$permissions_table = SQL_PREFIX . "permissions";
 
-		$query = "SELECT `uid`, `username`, `password`, "
-			."`read`, `write`, `readonly`, `modify`, "
-			."`permissions`.`admin` AS `calendar_admin`\n"
+		$query = "SELECT *, `permissions`.`admin` AS `calendar_admin`\n"
 			."FROM `" . SQL_PREFIX . "users`\n"
 			."LEFT JOIN (SELECT * FROM `$permissions_table`\n"
 			."	WHERE `cid`='$cid') AS `permissions`\n"
@@ -679,6 +674,16 @@ class PhpcDatabase {
 		$this->dbh->query($query)
 			or $this->db_error(__('Error adding group to user.'),
 					$query);
+	}
+
+	function user_remove_group($uid, $gid) {
+		$user_groups_table = SQL_PREFIX . 'user_groups';
+
+		$query = "DELETE FROM `$user_groups_table`\n"
+			."WHERE `uid` = '$uid' AND `gid` = '$gid'";
+
+		$this->dbh->query($query)
+			or $this->db_error(__('Error removing group from user.'), $query);
 	}
 
 	function create_event($cid, $uid, $subject, $description, $readonly,
